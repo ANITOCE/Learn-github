@@ -1,3 +1,3 @@
 print("Hello Mom!")
 
-print("Hello Github!")
+print("Hello GitHub!")
