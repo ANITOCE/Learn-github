@@ -1,0 +1,72 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.0.1)'
+        required: true
+        default: 'v0.0.1'
+      release_name:
+        description: 'Release name'
+        required: true
+        default: 'v0.0.1'
+      release_notes:
+        description: 'Release notes'
+        required: false
+        default: 'Initial release'
+  push:
+    branches:
+      - copilot/release-v0-0-1
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Tag and Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = context.eventName === 'workflow_dispatch'
+              ? '${{ github.event.inputs.tag }}'
+              : 'v0.0.1';
+            const name = context.eventName === 'workflow_dispatch'
+              ? '${{ github.event.inputs.release_name }}'
+              : 'v0.0.1';
+            const body = context.eventName === 'workflow_dispatch'
+              ? '${{ github.event.inputs.release_notes }}'
+              : 'Initial release';
+
+            // Create the tag first
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${tag}`,
+                sha: context.sha,
+              });
+              console.log(`Tag ${tag} created.`);
+            } catch (e) {
+              if (e.status === 422) {
+                console.log(`Tag ${tag} already exists, skipping creation.`);
+              } else {
+                throw e;
+              }
+            }
+
+            // Create the release
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: name,
+              body: body,
+              draft: false,
+              prerelease: false,
+            });
+            console.log(`Release created: ${release.data.html_url}`);
