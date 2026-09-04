@@ -9,6 +9,5 @@ from app import create_app
 def client():
     """Build a test client from a fresh app instance via create_app()."""
     app = create_app()
-    app.config.update(TESTING=True)
     with app.test_client() as test_client:
         yield test_client
