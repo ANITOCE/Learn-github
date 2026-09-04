@@ -23,3 +23,29 @@ target
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# ===== AI 开发工作流私有区(不入公开仓库,规则见 docs/spec-kit-解决方案.md 4.7)=====
+
+# GitHub Copilot 技能与指令(spec-kit 命令技能、superpowers 方法技能、项目指令)
+.github/skills/
+.github/agents/
+.github/prompts/
+.github/copilot-instructions.md
+
+# spec-kit 状态与模板(宪章、特性指针、集成清单、项目覆盖)
+.specify/
+
+# spec-kit 特性规格制品(开发细节)
+/specs/
+
+# superpowers 计划文档与运行期文件(SDD 台账、brainstorm 会话)
+docs/superpowers/
+.superpowers/
+
+# 开发指南与 Phase 文档(总纲与执行细节)
+docs/dev-guides/
+docs/phases/
+docs/templates/
+
+# 隔离工作树
+.worktrees/
