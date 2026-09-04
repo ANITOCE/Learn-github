@@ -8,14 +8,30 @@ from flask import Flask, jsonify, request
 
 from app.operations import add, divide, multiply, subtract
 
+INVALID_PARAMETERS = "invalid parameters"
+
+
+def _parse_parameters() -> tuple[float, float] | None:
+    """Return (a, b) as floats, or None when missing or non-numeric."""
+    a_raw = request.args.get("a")
+    b_raw = request.args.get("b")
+    if a_raw is None or b_raw is None:
+        return None
+    try:
+        return float(a_raw), float(b_raw)
+    except ValueError:
+        return None
+
 
 def register_routes(app: Flask) -> None:
     """Mount GET /add, /subtract, /multiply and /divide on the app."""
 
     def _handler(operation):
         def endpoint():
-            a = float(request.args["a"])
-            b = float(request.args["b"])
+            parameters = _parse_parameters()
+            if parameters is None:
+                return jsonify(error=INVALID_PARAMETERS), 400
+            a, b = parameters
             return jsonify(result=operation(a, b))
 
         return endpoint
