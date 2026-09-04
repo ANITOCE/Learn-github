@@ -9,6 +9,7 @@ from flask import Flask, jsonify, request
 from app.operations import add, divide, multiply, subtract
 
 INVALID_PARAMETERS = "invalid parameters"
+DIVISION_BY_ZERO = "division by zero"
 
 
 def _parse_parameters() -> tuple[float, float] | None:
@@ -26,12 +27,14 @@ def _parse_parameters() -> tuple[float, float] | None:
 def register_routes(app: Flask) -> None:
     """Mount GET /add, /subtract, /multiply and /divide on the app."""
 
-    def _handler(operation):
+    def _handler(operation, reject_zero_divisor=False):
         def endpoint():
             parameters = _parse_parameters()
             if parameters is None:
                 return jsonify(error=INVALID_PARAMETERS), 400
             a, b = parameters
+            if reject_zero_divisor and b == 0.0:
+                return jsonify(error=DIVISION_BY_ZERO), 400
             return jsonify(result=operation(a, b))
 
         return endpoint
@@ -39,4 +42,6 @@ def register_routes(app: Flask) -> None:
     app.add_url_rule("/add", endpoint="add", view_func=_handler(add))
     app.add_url_rule("/subtract", endpoint="subtract", view_func=_handler(subtract))
     app.add_url_rule("/multiply", endpoint="multiply", view_func=_handler(multiply))
-    app.add_url_rule("/divide", endpoint="divide", view_func=_handler(divide))
+    app.add_url_rule(
+        "/divide", endpoint="divide", view_func=_handler(divide, reject_zero_divisor=True)
+    )
