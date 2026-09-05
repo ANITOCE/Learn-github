@@ -49,3 +49,4 @@ docs/templates/
 
 # 隔离工作树
 .worktrees/
+.vscode/
